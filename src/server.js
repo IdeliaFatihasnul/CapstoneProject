@@ -125,34 +125,22 @@
 
 
 // src/server.js
-const Hapi = require('@hapi/hapi');
-const readExcelData = require('./app'); // Pastikan app.js berada di folder yang benar
+const express = require('express');
+const open = require('open');
+const path = require('path');
+const app = express();
+const port = 3000;
 
-const init = async () => {
-  const server = Hapi.server({
-    port: 3000,
-    host: 'localhost',
-  });
+// Endpoint untuk menggabungkan data
+app.get('/combine-data', (req, res) => {
+  const combinedData = processAndCombineData();
+  res.json(combinedData); // Mengirim data JSON ke pengguna
+});
 
-  // Definisikan rute untuk mendapatkan data
-  server.route({
-    method: 'GET',
-    path: '/data',
-    handler: async (request, h) => {
-      try {
-        const data = readExcelData(); // Memanggil fungsi dari app.js untuk membaca data
-        return h.response(data).code(200); // Mengembalikan respons dengan status 200
-      } catch (err) {
-        console.error('Error occurred:', err); // Menampilkan error di console
-        return h.response({ error: 'An internal server error occurred', details: err.message }).code(500);
-      }
-    },
-  });
-
-  await server.start();
-  console.log('Server running on %s', server.info.uri);
-};
-
-init();
-
+// Jalankan server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  // Membuka browser secara otomatis ke URL yang diinginkan
+  open('http://localhost:3000/combine-data');
+});
 
